@@ -13,7 +13,7 @@
                     .then((res) => { 
                     return res.json(); 
                 }) 
-                .then((data) => surat.push(JSON.parse(data))); 
+                .then((data) => alert(data.length)); 
             }
             alert(surat.length);
             document.getElementById('surah-list').innerHTML = temp;

@@ -5,11 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quran</title>
     <script>
-        const queryString = window.location.search;
-        alert(queryString);
+        function loadPage(){
+            const queryString = window.location.search;
+            alert(queryString);
+        }
     </script>
 </head>
-<body>
+<body onload="loadPage()">
     
 </body>
 </html>

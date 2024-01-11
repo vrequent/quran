@@ -58,8 +58,10 @@
             const urlParams = new URLSearchParams(queryString);
             let surah = urlParams.get('surah');
             const ayat = urlParams.get('ayat');
-            if(surah) setSurah(surah-1);
-            if(ayat) setAyat(surah-1,Number(ayat));
+            if(surah) {
+                setSurah(surah-1);
+                if(ayat) setAyat(surah-1,Number(ayat));
+            }
         }
         function setSurah(i){
             if(i==-1){

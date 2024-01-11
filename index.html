@@ -20,7 +20,7 @@
                     .then((res) => { 
                     return res.json(); 
                 }) 
-                .then((data) => document.getElementById('surat-list').appendChild(`<li>${data.name_latin}</li>`)); 
+                .then((data) => document.getElementById('surah-list').appendChild(`<li>${data.name_latin}</li>`)); 
             }
             console.log(surat);
             document.getElementById('surah-list').innerHTML = temp;

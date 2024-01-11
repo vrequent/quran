@@ -3,64 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quran</title>
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <style>
-        #surah-list li {
-            padding: 0.5rem 0 0.5rem;
-            border-top: 1px solid #000;
+        .arabic{
+            text-align:right;
+            font-size: 120%;
         }
-        a{
-            text-decoration: none;
+        .table th{
+            vertical-align: middle;
+        }
+        select.btn{
+            text-align: left !important;
         }
     </style>
 </head>
 <body onload="loadPage()">
-    <div>
-        <h3 id="surah-title"></h3>
-        <ol id="surah-list">
-
-        </ol>
-    </div>
-    <a id="downloadAnchorElem" style="display:none"></a>
     <script src="jquery-3.7.1.min.js"></script>
+    <table class="table table-hover" id="list">
+        <thead></thead>
+        <tbody></tbody>
+    </table>
     <script>
-        let surat = [];
+        let surat;
         function loadPage(){
-            $('#surah-title').html('LIST SURAH');
-            $('#surah-list').html('');
-            for(let i=1;i<=114;i++){
-                fetch(`surah/${i}.json`) 
-                    .then((res) => { 
-                    return res.json(); 
-                }) 
-                .then((data) => setSurahList(data[i],i)); 
-            }
-        }
-        function setSurahList(data,i){
-            surat.push(data);
-            $('#surah-list').append(`<li><a href="#" onclick="getSurah(${i})"><p style="text-align:right">${data.name}</p><p>${data.name_latin}</p><a></li>`)
-            if(surat.length == 114){
-                var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(surat));
-                var dlAnchorElem = document.getElementById('downloadAnchorElem');
-                dlAnchorElem.setAttribute("href", dataStr);
-                dlAnchorElem.setAttribute("download", "quran.json");
-                dlAnchorElem.click();
-            }
-        }
-        function getSurah(i){
-            
-            fetch(`surah/${i}.json`) 
+            fetch(`quran.json`) 
                 .then((res) => { 
                 return res.json(); 
             }) 
-            .then((data) => setSurah(data[i],i)); 
+            .then((data) => setQuran(data)); 
         }
-        function setSurah(data){
-            $('#surah-title').html('<a href="#" style="font-weight:bold;text-decoration:none" onclick="loadPage()">&#8592;</a>	'+data.name_latin+'<span style="float:right">'+data.name+'</span>');
-            $('#surah-list').html('');
-            for(let i in data.text){
-                $('#surah-list').append('<li><p style="text-align:right;font-size:150%">'+data.text[i]+'</p><p>'+data.translations.id.text[i]+'</p></li>');
+        function setQuran(data){
+            surat = data;
+            $('#list thead').html(`
+                <tr>
+                    <th class="text-center" colspan="3">
+                        <input onkeyup="searchSurah(this.value)" class="form-control w-auto" placeholder="Search Surah...">
+                    </th>
+                </tr>
+            `);
+            $('#list tbody').html(``);
+            for(let i in data){
+                let row = data[i];
+                $('#list tbody').append(`
+                    <tr onclick="setSurah(${i})" style="cursor:pointer">
+                        <td style="width:50px;vertical-align:top;">${row.number}</td>
+                        <td class="surah-name">${row.name_latin}</td>    
+                        <td class="arabic">${row.name}</td>    
+                    </tr>
+                `);
             }
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            let surah = urlParams.get('surah');
+            const ayat = urlParams.get('ayat');
+            if(surah) setSurah(surah-1);
+            if(ayat) setAyat(surah-1,Number(ayat));
+        }
+        function setSurah(i){
+            if(i==-1){
+                loadPage();
+                return;
+            }
+            if(i>113){
+                alert('Surah not found!');
+                return;
+            }
+            let surah = surat[i];
+            let selectSurah = `<select class="btn border" onchange="setSurah(this.value)">`;
+            selectSurah+=`<option value="-1">--List Surah--</option>`;
+            for(let index in surat){
+                let selected = index==i?' selected': '';
+                selectSurah+=`<option${selected} value="${index}">${surat[index].number}. ${surat[index].name_latin}</option>`;
+            }
+            selectSurah+=`</select>`;
+            $('#list thead').html(`
+                <tr>  
+                    <th style="vertical-align:middle" colspan="3" class="text-center">
+                        <button id="prev-surah" onclick="setSurah(${i-1})" class="btn btn-link"><i class="fa fa-arrow-left"></i></button> 
+                        ${selectSurah}
+                        <button id="next-surah" class="btn btn-link" onclick="setSurah(${i+1})"><i class="fa fa-arrow-right"></i></button>
+                    </th>
+                </tr>
+            `);
+            $('#list tbody').html(``);
+            let trans = surah.translations.id.text;
+            for(let idx in surah.text){
+                let text = surah.text[idx];
+                $('#list tbody').append(`
+                    <tr onclick="setAyat(${i},${idx})">
+                        <td>${idx}</td>
+                        <td colspan="2">
+                            <p class="arabic">${text}</p>
+                            <p>${trans[idx]}</p>
+                        </td>
+                    </tr>
+                `);
+            }
+            $('#prev-surah').prop('disabled',i==0);
+            $('#next-surah').prop('disabled',i==113);
+        }
+        function searchSurah(s){
+            let surahName = $('.surah-name').get();
+            $('#list tbody tr').hide();
+            console.log(s);
+            for(let i in surahName){
+                if($(surahName[i]).html().toLowerCase().indexOf(s.toLowerCase())>=0) $(surahName[i]).parent().show();
+            }
+        }
+        function setAyat(surahNumber,ayatNumber){
+            console.log(surahNumber,ayatNumber);
+            if(ayatNumber==-1){
+                setSurah(surahNumber);
+                return;
+            }
+            let surah = surat[surahNumber];
+            if(ayatNumber>surah.number_of_ayah){
+                alert('Ayat not found;');
+                return;
+            }
+            console.log(surah);
+            $('#list tbody').html(`
+                <tr>
+                    <td>${ayatNumber}</td>
+                    <td>
+                        <p class="arabic">${surah.text[ayatNumber]}</p>
+                        <p>${surah.translations.id.text[ayatNumber]}</p>
+                        <h5>Tafsir: </h5>
+                        <p>${surah.tafsir.id.kemenag.text[ayatNumber]}</p>
+                        <p><i>Tafsir by Kemenag</i></p>
+                    </td>    
+                </tr>
+            `);
+            $('#list button,#select-ayat').remove();
+            $('#list>thead>tr>th').prepend(`<button class="btn btn-link" id="prev-ayat" onclick="setAyat(${surahNumber},${ayatNumber-1})"><i class="fa fa-arrow-left"></i></button>`);
+            let selectAyat = `<select id="select-ayat" class="btn border" onchange="setAyat(${surahNumber},this.value)"><option value="-1">--All--</option>`;
+            for(let i=1;i<=surah.number_of_ayah;i++){
+                selectAyat+=`<option value="${i}">Ayat ${i}</option>`
+            }
+            selectAyat+=`</select>`;
+            $('#list>thead>tr>th').append(selectAyat);
+            $('#select-ayat').val(ayatNumber);
+            $('#list>thead>tr>th').append(`<button class="btn btn-link" id="next-ayat" onclick="setAyat(${surahNumber},${ayatNumber+1})"><i class="fa fa-arrow-right"></i></button>`);
+            $('#prev-ayat').prop('disabled',ayatNumber==1);
+            $('#next-ayat').prop('disabled',ayatNumber==surah.number_of_ayah);
         }
     </script>
 </body>

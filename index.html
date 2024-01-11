@@ -6,11 +6,16 @@
     <title>Quran</title>
     <script>
         function loadPage(){
-            const queryString = window.location.search;
+            let surat = [];
             let temp = "";
-            for(let i=0;i<114;i++){
-                temp+=`<li>${i}</li>`;
+            for(let i=1;i<=114;i++){
+                fetch(`surah/${i}.json`) 
+                    .then((res) => { 
+                    return res.json(); 
+                }) 
+                .then((data) => surat.push(JSON.parse(data))); 
             }
+            alert(surat.length);
             document.getElementById('surah-list').innerHTML = temp;
         }
     </script>

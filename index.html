@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quran</title>
+</head>
+<body onload="loadPage()">
+    <div>
+        <ol id="surah-list">
+
+        </ol>
+    </div>
     <script>
         function loadPage(){
             let surat = [];
@@ -19,12 +26,5 @@
             document.getElementById('surah-list').innerHTML = temp;
         }
     </script>
-</head>
-<body onload="loadPage()">
-    <div>
-        <ol id="surah-list">
-
-        </ol>
-    </div>
 </body>
 </html>

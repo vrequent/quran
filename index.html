@@ -4,23 +4,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quran</title>
+    <style>
+        #surah-list li {
+            padding: 0.5rem 0 0.5rem;
+            border-top: 1px solid #000;
+        }
+        a{
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body onload="loadPage()">
     <div>
+        <h3 id="surah-title"></h3>
         <ol id="surah-list">
 
         </ol>
     </div>
+    <script src="jquery-3.7.1.min.js"></script>
     <script>
         function loadPage(){
-            let surat = [];
-            let temp = "";
+            $('#surah-title').html('LIST SURAH');
+            $('#surah-list').html('');
             for(let i=1;i<=114;i++){
                 fetch(`surah/${i}.json`) 
                     .then((res) => { 
                     return res.json(); 
                 }) 
-                .then((data) => console.log(data['1'].name_latin)); 
+                .then((data) => setSurahList(data[i],i)); 
+            }
+        }
+        function setSurahList(data,i){
+            $('#surah-list').append(`<li><a href="#" onclick="getSurah(${i})"><p style="text-align:right">${data.name}</p><p>${data.name_latin}</p><a></li>`)
+        }
+        function getSurah(i){
+            
+            fetch(`surah/${i}.json`) 
+                .then((res) => { 
+                return res.json(); 
+            }) 
+            .then((data) => setSurah(data[i],i)); 
+        }
+        function setSurah(data){
+            $('#surah-title').html('<a href="#" style="font-weight:bold;text-decoration:none" onclick="loadPage()">&#8592;</a>	'+data.name_latin+'<span style="float:right">'+data.name+'</span>');
+            $('#surah-list').html('');
+            for(let i in data.text){
+                $('#surah-list').append('<li><p style="text-align:right;font-size:150%">'+data.text[i]+'</p><p>'+data.translations.id.text[i]+'</p></li>');
             }
         }
     </script>

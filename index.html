@@ -13,18 +13,18 @@
                     .then((res) => { 
                     return res.json(); 
                 }) 
-                .then((data) => console.log(data)); 
+                .then((data) => document.getElementById('surat-list').appendChild(data.name_latin)); 
             }
-            alert(surat.length);
+            console.log(surat);
             document.getElementById('surah-list').innerHTML = temp;
         }
     </script>
 </head>
 <body onload="loadPage()">
     <div>
-        <ul id="surah-list">
+        <ol id="surah-list">
 
-        </ul>
+        </ol>
     </div>
 </body>
 </html>

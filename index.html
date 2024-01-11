@@ -9,7 +9,7 @@
             const queryString = window.location.search;
             let temp = "";
             for(let i=0;i<114;i++){
-                temp+="<li>${i}</li>";
+                temp+=`<li>${i}</li>`;
             }
             document.getElementById('surah-list').innerHTML = temp;
         }
@@ -18,7 +18,7 @@
 <body onload="loadPage()">
     <div>
         <ul id="surah-list">
-            
+
         </ul>
     </div>
 </body>

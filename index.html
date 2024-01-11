@@ -7,11 +7,19 @@
     <script>
         function loadPage(){
             const queryString = window.location.search;
-            alert(queryString);
+            let temp = "";
+            for(let i=0;i<114;i++){
+                temp+="<li>${i}</li>";
+            }
+            document.getElementById('surah-list').innerHTML = temp;
         }
     </script>
 </head>
 <body onload="loadPage()">
-    
+    <div>
+        <ul id="surah-list">
+            
+        </ul>
+    </div>
 </body>
 </html>

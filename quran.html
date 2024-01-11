@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        .arabic{
+            text-align:right;
+            font-size: 150%;
+        }
+        .table td{
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body onload="loadPage()">
+    <script src="jquery-3.7.1.min.js"></script>
+    <table class="table table-hover" id="list">
+        <thead></thead>
+        <tbody></tbody>
+    </table>
+    <script>
+        let surat;
+        function loadPage(){
+            fetch(`quran.json`) 
+                .then((res) => { 
+                return res.json(); 
+            }) 
+            .then((data) => setQuran(data)); 
+        }
+        function setQuran(data){
+            surat = data;
+            $('#list thead').html(`
+                <tr>
+                    <th class="text-center" colspan="3"><h3>List Surah</h3></th>
+                </tr>
+            `);
+            $('#list tbody').html(``);
+            for(let i in data){
+                let row = data[i];
+                $('#list tbody').append(`
+                    <tr onclick="setSurah(${i})" style="cursor:pointer">
+                        <td style="width:50px;">${row.number}</td>
+                        <td>${row.name_latin}</td>    
+                        <td class="arabic">${row.name}</td>    
+                    </tr>
+                `);
+            }
+        }
+        function setSurah(i){
+            let surah = surat[i];
+            console.log(surah)
+            $('#list thead').html(`
+                <tr>
+                    <th style="width:50px;cursor:pointer;" onclick="loadPage()">
+                        <i class="fa fa-home"></i>
+                    </th>    
+                    <th>${surah.name_latin}</th>    
+                    <th class="arabic">${surah.name}</th>    
+                </tr>
+            `);
+            $('#list tbody').html(``);
+            let trans = surah.translations.id.text;
+            for(let i in surah.text){
+                let text = surah.text[i];
+                $('#list tbody').append(`
+                    <tr>
+                        <td>${i}</td>
+                        <td colspan="2">
+                            <p class="arabic">${text}</p>
+                            <p>${trans[i]}</p>
+                        </td>
+                    </tr>
+                `);
+            }
+        }
+    </script>
+</body>
+</html>

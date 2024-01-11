@@ -21,8 +21,10 @@
 
         </ol>
     </div>
+    <a id="downloadAnchorElem" style="display:none"></a>
     <script src="jquery-3.7.1.min.js"></script>
     <script>
+        let surat = [];
         function loadPage(){
             $('#surah-title').html('LIST SURAH');
             $('#surah-list').html('');
@@ -35,7 +37,15 @@
             }
         }
         function setSurahList(data,i){
+            surat.push(data);
             $('#surah-list').append(`<li><a href="#" onclick="getSurah(${i})"><p style="text-align:right">${data.name}</p><p>${data.name_latin}</p><a></li>`)
+            if(surat.length == 114){
+                var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(surat));
+                var dlAnchorElem = document.getElementById('downloadAnchorElem');
+                dlAnchorElem.setAttribute("href", dataStr);
+                dlAnchorElem.setAttribute("download", "quran.json");
+                dlAnchorElem.click();
+            }
         }
         function getSurah(i){
             

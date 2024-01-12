@@ -36,7 +36,9 @@
     </table>
     <script>
         let surat;
+        let base_url;
         function loadPage(){
+            base_url = window.location.origin;
             fetch(`quran.json`) 
                 .then((res) => { 
                 return res.json(); 
@@ -70,7 +72,7 @@
         }
         function setSurah(i){
             i = Number(i);
-            if(i==-1) window.location.href = '/';
+            if(i==-1) window.location.href = base_url+'/quran';
                 
             if(i>113){
                 alert('Surah not found!');

@@ -17,10 +17,19 @@
         select.btn{
             text-align: left !important;
         }
+        .row-header{
+            position: fixed;
+            top:0;
+            left:0;
+            right: 0;
+        }
     </style>
 </head>
 <body onload="loadPage()">
     <script src="jquery-3.7.1.min.js"></script>
+    <div class="row-header bg-white border-bottom">
+        <div id="list-header" class="col-12 p-2"></div>
+    </div>
     <table class="table table-hover" id="list">
         <thead></thead>
         <tbody></tbody>
@@ -36,14 +45,10 @@
         }
         function setQuran(data){
             surat = data;
-            $('#list thead').html(`
-                <tr>
-                    <th class="text-center" colspan="3">
-                        <input onkeyup="searchSurah(this.value)" class="form-control w-auto" placeholder="Search Surah...">
-                    </th>
-                </tr>
+            $('#list-header').html(`
+                <input onkeyup="searchSurah(this.value)" class="form-control w-auto" placeholder="Search Surah...">
             `);
-            $('#list tbody').html(``);
+            $('#list tbody').html(`<tr><td colspan="3" style="padding:27px"></td></tr>`);
             for(let i in data){
                 let row = data[i];
                 $('#list tbody').append(`
@@ -64,10 +69,9 @@
             }
         }
         function setSurah(i){
-            if(i==-1){
-                loadPage();
-                return;
-            }
+            i = Number(i);
+            if(i==-1) window.location.href = '/';
+                
             if(i>113){
                 alert('Surah not found!');
                 return;
@@ -80,16 +84,12 @@
                 selectSurah+=`<option${selected} value="${index}">${surat[index].number}. ${surat[index].name_latin}</option>`;
             }
             selectSurah+=`</select>`;
-            $('#list thead').html(`
-                <tr>  
-                    <th style="vertical-align:middle" colspan="3" class="text-center">
-                        <button id="prev-surah" onclick="setSurah(${i-1})" class="btn btn-link"><i class="fa fa-arrow-left"></i></button> 
-                        ${selectSurah}
-                        <button id="next-surah" class="btn btn-link" onclick="setSurah(${i+1})"><i class="fa fa-arrow-right"></i></button>
-                    </th>
-                </tr>
-            `);
-            $('#list tbody').html(``);
+            $('#list-header').html(`<div class="text-center">
+                <button id="prev-surah" onclick="setSurah(${i-1})" class="btn btn-link"><i class="fa fa-arrow-left"></i></button> 
+                ${selectSurah}
+                <button id="next-surah" class="btn btn-link" onclick="setSurah(${i+1})"><i class="fa fa-arrow-right"></i></button>
+            </div>`);
+            $('#list tbody').html(`<tr><td colspan="3" style="padding:27px"></td></tr>`);
             let trans = surah.translations.id.text;
             for(let idx in surah.text){
                 let text = surah.text[idx];
@@ -116,6 +116,7 @@
         }
         function setAyat(surahNumber,ayatNumber){
             console.log(surahNumber,ayatNumber);
+            ayatNumber = Number(ayatNumber);
             if(ayatNumber==-1){
                 setSurah(surahNumber);
                 return;
@@ -127,27 +128,37 @@
             }
             console.log(surah);
             $('#list tbody').html(`
+                <tr><td colspan="2" style="padding: 54px"></td></tr>
                 <tr>
                     <td>${ayatNumber}</td>
                     <td>
                         <p class="arabic">${surah.text[ayatNumber]}</p>
                         <p>${surah.translations.id.text[ayatNumber]}</p>
-                        <h5>Tafsir: </h5>
-                        <p>${surah.tafsir.id.kemenag.text[ayatNumber]}</p>
-                        <p><i>Tafsir by Kemenag</i></p>
+                        <h6>Tafsir: </h6>
+                        <p class="small">${surah.tafsir.id.kemenag.text[ayatNumber]}</p>
+                        <p class="small"><i>Tafsir by Kemenag</i></p>
                     </td>    
                 </tr>
             `);
-            $('#list button,#select-ayat').remove();
-            $('#list>thead>tr>th').prepend(`<button class="btn btn-link" id="prev-ayat" onclick="setAyat(${surahNumber},${ayatNumber-1})"><i class="fa fa-arrow-left"></i></button>`);
+            // $('#list button,#select-ayat').remove();
+            // $('#list>thead>tr>th').prepend(`<button class="btn btn-link" id="prev-ayat" onclick="setAyat(${surahNumber},${ayatNumber-1})"><i class="fa fa-arrow-left"></i></button>`);
             let selectAyat = `<select id="select-ayat" class="btn border" onchange="setAyat(${surahNumber},this.value)"><option value="-1">--All--</option>`;
             for(let i=1;i<=surah.number_of_ayah;i++){
                 selectAyat+=`<option value="${i}">Ayat ${i}</option>`
             }
             selectAyat+=`</select>`;
-            $('#list>thead>tr>th').append(selectAyat);
+            // $('#list>thead>tr>th').append(selectAyat);
+            // $('#select-ayat').val(ayatNumber);
+            // $('#list>thead>tr>th').append(`<button class="btn btn-link" id="next-ayat" onclick="setAyat(${surahNumber},${ayatNumber+1})"><i class="fa fa-arrow-right"></i></button>`);
+            $('#ayat-header').remove();
+            $('#list-header').append(`
+                <div id="ayat-header" class="text-center col-12 p-2">
+                    <button class="btn btn-link" id="prev-ayat" onclick="setAyat(${surahNumber},${ayatNumber-1})"><i class="fa fa-arrow-left"></i></button>
+                    ${selectAyat}
+                    <button class="btn btn-link" id="next-ayat" onclick="setAyat(${surahNumber},${ayatNumber+1})"><i class="fa fa-arrow-right"></i></button>
+                </div>
+            `);
             $('#select-ayat').val(ayatNumber);
-            $('#list>thead>tr>th').append(`<button class="btn btn-link" id="next-ayat" onclick="setAyat(${surahNumber},${ayatNumber+1})"><i class="fa fa-arrow-right"></i></button>`);
             $('#prev-ayat').prop('disabled',ayatNumber==1);
             $('#next-ayat').prop('disabled',ayatNumber==surah.number_of_ayah);
         }
